@@ -1,11 +1,10 @@
 services:
   - type: web
-    name: projectml-api
+    name: projectmlapi
     env: python
-    region: oregon
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
     plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app:app --host 0.0.0.0 --port 10000"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10
+        value: 3.12

@@ -1,3 +1,4 @@
+fastapi
 absl-py==1.4.0
 absolufy-imports==0.3.1
 accelerate==1.11.0
