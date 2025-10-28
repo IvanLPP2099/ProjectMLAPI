@@ -114,8 +114,21 @@ def predict(data: InputData):
         if key not in modelos_dict:
             return {"error": f"Modelo {key} no encontrado en SARIMAX"}
 
-        model = modelos_dict[key]  # es un objeto SARIMAXResultsWrapper
-        forecast = model.get_forecast(steps=data.meses)
+        cfg = modelos_dict[key]
+
+        # Reconstruir el modelo SARIMAX con los parámetros guardados
+        order = tuple(cfg["order"])
+        seasonal_order = tuple(cfg["seasonal_order"])
+        last_train_values = cfg["last_train_value"]
+
+        serie = pd.Series(last_train_values)
+        model = SARIMAX(serie, order=order, seasonal_order=seasonal_order)
+
+        # Aplicar los parámetros entrenados (res.params)
+        res = model.filter(pd.Series(cfg["params"]))
+
+        # Predecir los próximos N meses
+        forecast = res.get_forecast(steps=data.meses)
         pred = forecast.predicted_mean.tolist()
 
         predicciones = [
