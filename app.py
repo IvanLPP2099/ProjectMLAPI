@@ -23,6 +23,10 @@ class InputData(BaseModel):
     fechas: list  # fechas a predecir (opcional)
     ultimos_valores: list = None  # requerido para LSTM o MA
 
+@app.get("/")
+def home():
+    return {"message": "API de modelos de predicción funcionando correctamente"}
+
 
 @app.post("/predict")
 def predict(data: InputData):
