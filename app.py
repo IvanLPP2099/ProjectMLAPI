@@ -3,7 +3,6 @@ from pydantic import BaseModel
 import joblib
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from prophet import Prophet
 from statsmodels.tsa.ar_model import AutoRegResults
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
