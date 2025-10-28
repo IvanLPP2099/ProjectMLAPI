@@ -4,7 +4,8 @@ import joblib
 import numpy as np
 import pandas as pd
 from prophet import Prophet
-from statsmodels.tsa.ar_model import AutoRegResults
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+import os
 
 app = FastAPI(title="API de Modelos de Predicción (UCV 2025)")
 
@@ -12,12 +13,13 @@ app = FastAPI(title="API de Modelos de Predicción (UCV 2025)")
 modelos_prophet = joblib.load("trained_prophet_model.pkl")
 modelos_ar = joblib.load("trained_autoregression_model.pkl")
 modelos_ma = joblib.load("trained_ma_model.pkl")
+modelos_sarimax = joblib.load("trained_sarimax_model.pkl")
 
 # Resultados históricos
 results_prophet = pd.read_csv("results_prophet.csv", sep=";")
 results_ar = pd.read_csv("results_autoreg.csv", sep=";")
 results_ma = pd.read_csv("results_ma.csv", sep=";")
-
+results_sarimax = pd.read_csv("results_sarimax.csv", sep=";")
 
 
 class InputData(BaseModel):
@@ -47,6 +49,9 @@ def predict(data: InputData):
     elif modelo == "ma":
         results_df = results_ma
         modelos_dict = modelos_ma
+    elif modelo == "sarimax":
+        results_df = results_sarimax
+        modelos_dict = modelos_sarimax
     else:
         return {"error": f"Modelo '{data.modelo}' no reconocido"}
 
@@ -105,6 +110,27 @@ def predict(data: InputData):
             {"mes": i + 1, "valor": round(float(p), 3)} for i, p in enumerate(pred)
         ]
 
+    elif modelo == "sarimax":
+        if key not in modelos_dict:
+            return {"error": f"Modelo {key} no encontrado en SARIMAX"}
+
+        cfg = modelos_dict[key]
+
+        # Reconstruir serie con últimos valores
+        serie = pd.Series(cfg.get("last_train_value", [0]*12))
+        model = SARIMAX(serie, order=cfg["order"], seasonal_order=cfg["seasonal_order"])
+        res = model.filter(cfg["params"])  # aplica parámetros del modelo entrenado
+
+        forecast = res.get_forecast(steps=data.meses)
+        pred = forecast.predicted_mean.tolist()
+        predicciones = [
+            {"mes": i + 1, "valor": round(float(p), 3)} for i, p in enumerate(pred)
+        ]
+
+    else:
+        return {"error": f"Modelo '{data.modelo}' no reconocido"}
+
+    # --- Respuesta final ---
     return {
         "modelo": data.modelo.upper(),
         "id": data.id,
