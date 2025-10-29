@@ -16,10 +16,10 @@ modelos_ma = joblib.load("trained_ma_model.pkl")
 modelos_sarimax = joblib.load("trained_sarimax_model.pkl")
 
 # Resultados históricos
-results_prophet = pd.read_csv("results_prophet.csv", sep=";")
-results_ar = pd.read_csv("results_autoreg.csv", sep=";")
-results_ma = pd.read_csv("results_ma.csv", sep=";")
-results_sarimax = pd.read_csv("results_sarimax.csv", sep=";")
+results_prophet = pd.read_csv("results_prophet.csv")
+results_ar = pd.read_csv("results_autoreg.csv")
+results_ma = pd.read_csv("results_ma.csv")
+results_sarimax = pd.read_csv("results_sarimax.csv")
 
 
 class InputData(BaseModel):
