@@ -4,6 +4,7 @@ import joblib
 import numpy as np
 import pandas as pd
 from prophet import Prophet
+from typing import Optional, List
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 import os
 
@@ -26,7 +27,7 @@ class InputData(BaseModel):
     modelo: str
     id: str
     target: str
-    meses: int = 3  # número de meses a predecir
+    fechas: Optional[List[str]] = None  # lista de fechas opcional
 
 
 @app.get("/")
@@ -38,6 +39,12 @@ def home():
 def predict(data: InputData):
     modelo = data.modelo.lower()
     key = f"{data.id}_{data.target}"
+    
+    # Definir meses según cantidad de fechas
+    if data.fechas:
+        meses = len(data.fechas)
+    else:
+        meses = 1  # DEFAULT
 
     # --- Seleccionar fuente de métricas ---
     if modelo == "prophet":
