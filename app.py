@@ -85,7 +85,7 @@ def predict(data: InputData):
         last_date = model.history["ds"].max()
         fechas_pred = pd.date_range(
             start=last_date + pd.offsets.MonthBegin(),
-            periods=data.meses,
+            periods=meses,
             freq="MS"
         )
         future = pd.DataFrame({"ds": fechas_pred})
@@ -102,7 +102,7 @@ def predict(data: InputData):
         model = modelos_dict[key]
         pred = model.predict(
             start=len(model.model.endog),
-            end=len(model.model.endog) + data.meses - 1
+            end=len(model.model.endog) + meses - 1
         )
         predicciones = [
             {"mes": i + 1, "valor": round(float(p), 3)} for i, p in enumerate(pred)
@@ -112,7 +112,7 @@ def predict(data: InputData):
         if key not in modelos_dict:
             return {"error": f"Modelo {key} no encontrado en MA"}
         meta = modelos_dict[key]
-        pred = [meta["last_ma"]] * data.meses
+        pred = [meta["last_ma"]] * meses
         predicciones = [
             {"mes": i + 1, "valor": round(float(p), 3)} for i, p in enumerate(pred)
         ]
@@ -135,7 +135,7 @@ def predict(data: InputData):
         res = model.filter(pd.Series(cfg["params"]))
 
         # Predecir los próximos N meses
-        forecast = res.get_forecast(steps=data.meses)
+        forecast = res.get_forecast(steps=meses)
         pred = forecast.predicted_mean.tolist()
 
         predicciones = [
